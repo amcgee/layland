@@ -1,0 +1,21 @@
+#!/usr/bin/env node
+
+const yargs = require('yargs')
+const command = require('../index.js')
+
+const argv = yargs
+    .usage('Usage: $0 <cmd> [options]')
+    .command('generate [glob..]', 'Generate lay of the land matrix', yargs =>
+        yargs
+            .positional('glob', {
+                describe: 'Glob pattern to match, remember to wrap with quotes!',
+                type: 'string',
+                default: '**/package.json',
+            })
+    )
+    .argv
+
+command({
+    command: argv._[0],
+    glob: argv.glob
+})

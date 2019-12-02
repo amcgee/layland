@@ -1,0 +1,5 @@
+layoftheland*.html
+layoftheland*.md
+
+node_modules/
+.git/

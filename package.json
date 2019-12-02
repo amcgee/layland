@@ -1,0 +1,19 @@
+{
+  "name": "layland",
+  "version": "1.0.0",
+  "description": "Lay of the Land",
+  "main": "index.js",
+  "bin": {
+    "layland": "./bin/layland"
+  },
+  "scripts": {
+    "test": "tape tests/**/*.js"
+  },
+  "author": "Viktor Varland <viktor@dhis2.org>",
+  "license": "MIT",
+  "dependencies": {
+    "fast-glob": "^3.1.0",
+    "fs-extra": "^8.1.0",
+    "yargs": "^14.2.0"
+  }
+}
