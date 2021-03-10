@@ -8,6 +8,7 @@ function checks (pkg) {
 
     const result = {
         pkgName: pkg.name,
+        pkgVersion: pkg.version,
     }
 
     /*
@@ -25,7 +26,7 @@ function checks (pkg) {
     checklist
         .map(check => require(`./checks/${check}`))
         .map(({ run }) => run(pkg))
-        .reduce((a, b) => result.checks = a.concat(b), [])
+        .reduce((a, b) => result.checks = a.concat(...b), [])
 
     return result
 }
@@ -36,8 +37,8 @@ function investigate(filepath) {
     return checks(pkg)
 }
 
-function format(reports) {
-    let headers = new Set(['package'])
+function format(header, reports) {
+    let headers = new Set([header])
     let rows = []
 
     for (const report of reports) {
@@ -46,10 +47,8 @@ function format(reports) {
         for (const check of report.checks) {
             headers.add(check.name)
             if (check.pass) {
-                if (check.meta.depVersion) {
-                    row.push(check.meta.depVersion)
-                } else if (check.meta.devVersion) {
-                    row.push(check.meta.devVersion)
+                if (check.meta.version) {
+                    row.push(`${check.meta.version} ${check.meta.development ? '(D)' : ''}`)
                 } else {
                     row.push(check.pass)
                 }
@@ -66,6 +65,51 @@ ${rows.join('\n')}
 `
 }
 
+function format_dep_report(report) {
+    const result = [`
+# ${report.pkgName} (${report.pkgVersion})
+
+`
+    ]
+
+    const deps = []
+    const devdeps = []
+
+    for (const check of report.checks) {
+        const str = `${check.name}|${check.version}|${check.action ? `${check.action}` : ''}`
+        if (check.development) {
+            devdeps.push(str)
+        } else {
+            deps.push(str)
+        }
+    }
+
+    if (deps.length > 0) {
+        result.push(`
+## Dependencies
+
+Package|Version|Action
+---|---|---
+${deps.join('\n')}
+
+`
+        )
+    }
+
+    if (devdeps.length > 0) {
+        result.push(`
+## Development dependencies
+
+Package|Version|Action
+---|---|---
+${devdeps.join('\n')}
+`
+        )
+    }
+
+    return result.join('\n')
+}
+
 module.exports = ({ command, glob }) => {
     const matches = fg.sync(glob, {
         ignore: [
@@ -74,5 +118,10 @@ module.exports = ({ command, glob }) => {
     })
 
     const reports = matches.map(investigate)
-    console.log(format(reports))
+
+    for (const report of reports) {
+        console.log(format_dep_report(report))
+    }
+
+    console.log(`_Generated ${new Date().toUTCString()}_`)
 }

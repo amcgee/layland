@@ -7,6 +7,7 @@
     "layland": "./bin/layland"
   },
   "scripts": {
+    "html": "pandoc --from markdown --to html -o layoftheland.html",
     "test": "tape tests/**/*.js"
   },
   "author": "Viktor Varland <viktor@dhis2.org>",
